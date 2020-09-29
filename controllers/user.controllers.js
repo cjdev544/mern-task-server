@@ -1,5 +1,4 @@
 const userModel = require('../models/User');
-const { validationResult } = require('express-validator');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 
@@ -8,10 +7,6 @@ const userCtrl = {};
 // Create User
 // /api/users
 userCtrl.createUser = async (req, res) => {
-
-    // validationResult
-    const errors = validationResult(req);
-    if(!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     
     try {
         const { email, password } = req.body;

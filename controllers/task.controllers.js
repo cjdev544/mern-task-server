@@ -6,12 +6,11 @@ const taskCtrl = {};
 
 // Create a Task
 taskCtrl.createTask = async (req, res) => {
+    // validationResult
+    const errors = validationResult(req);
+    if(!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
     
     try {
-        // validationResult
-        const errors = validationResult(req);
-        if(!errors.isEmpty()) return res.status(400).json({ errors: errors.array() });
-
         // Check if Project exist
         const project = await projectModel.findById(req.body.projectId)
         if(!project) return res.status(404).json({ msg: 'El Proyecto no existe' });
@@ -35,14 +34,15 @@ taskCtrl.getTasks = async (req, res) => {
 
     try {
         // Check if Project exist
-        const project = await projectModel.findById(req.body.projectId);
-        if(!project) return res.status(404).json({ msf: 'El proyecto no exciste' });
+        const { projectId } = req.query;
+        const projsctExist = await projectModel.findById(projectId);
+        if(!projsctExist) return res.status(404).json({ msg: 'El proyecto no existe' });
 
         // Auth the User width project
-        if(project.userId.toString() !== req.user.id) return res.status(400).json({ msg: 'No autorizado' });
+        if(projsctExist.userId.toString() !== req.user.id) return res.status(401).json({ msg: 'No autorizado' });
 
-        // get Tasks
-        const tasks = await taskModel.find({ projectId: req.body.projectId });
+        // Tasks of project selected
+        const tasks = await taskModel.find({ projectId }).sort({ date: -1 });
         res.json({ tasks });
 
         
